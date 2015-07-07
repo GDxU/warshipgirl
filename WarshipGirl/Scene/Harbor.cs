@@ -18,27 +18,14 @@ using WarshipGirl.Data;
 
 namespace WarshipGirl.Scene
 {
-    partial class Harbor:BaseScene
+    partial class Harbor : XmlScene
     {
-        Control poss;
-        Control dock;
-        Control fact;
-        Control trans;
         ResourceLabel oilres;
         ResourceLabel bulres;
         ResourceLabel irores;
         ResourceLabel alures;
-
-        Button collection;
-        Button settings;
-
-        Sprite hude;
-        Sprite expbar;
-
-        Text level;
-
     }
-    partial class Harbor : BaseScene
+    partial class Harbor : XmlScene
     {
         AudioStream bgstream;
         AudioPlayer player;
@@ -48,92 +35,6 @@ namespace WarshipGirl.Scene
                 bgstream = new AudioStream(@"Content\port-night.mp3",true);
             else
                 bgstream = new AudioStream(@"Content\port-day.mp3",true);
-
-            collection = new Button()
-            {
-                X = 10,
-                Y = 768,
-                Text="图鉴",
-                OriginType=Origins.BottomLeft
-            };
-            settings = new Button()
-            {
-                X = 140,
-                Y = 768,
-                Text = "设置",
-                OriginType = Origins.BottomLeft
-            };
-            hude = new Sprite()
-            {
-                X =280,
-                Y = 384,
-                OriginType = Origins.Center,
-                Color = Color.White,
-                Width = 800,
-                Height = 800,
-                Texture = Sprite.CreateTextureFromFile(this.GraphicsDevice,@"Content\ship1024_normal_1.png"),
-            };
-            expbar = new Sprite()
-            {
-                X=0,
-                Y=0,
-                OriginType=Origins.TopLeft,
-                Color=Color.White,
-                Width=222,
-                Height=75,
-                Texture = Sprite.CreateTextureFromFile(this.GraphicsDevice, @"Content\expBar.png")
-            };
-            level = new Text()
-            {
-                X = 8,
-                Y = 2,
-                text = "Lv.61",
-                Color = Color.White,
-                OriginType = Origins.TopLeft,
-                Font = new Font(this.GraphicsDevice, "msyh.ttc", 25,-8)
-            };
-
-            poss = new Control()
-            {
-                X = 768,
-                Y = 192,
-                OriginType = Origins.Center,
-                Color = Color.White,
-                Width = 185,
-                Height = 182,
-                Texture = Sprite.CreateTextureFromFile(this.GraphicsDevice, @"Content\Procession.png")
-            };
-            dock = new Control()
-            {
-                X = 768,
-                Y = 440,
-                OriginType = Origins.Center,
-                Color = Color.White,
-                Width = 185,
-                Height = 182,
-                Texture = Sprite.CreateTextureFromFile(this.GraphicsDevice, @"Content\Dock.png")
-            };
-            fact = new Control()
-            {
-                X = 650,
-                Y = 315,
-                OriginType = Origins.Center,
-                Color = Color.White,
-                Width = 185,
-                Height = 182,
-                Texture = Sprite.CreateTextureFromFile(this.GraphicsDevice, @"Content\Factory.png")
-            };
-            fact.Click += fact_Click;
-            trans = new Control()
-            {
-                X = 885,
-                Y = 315,
-                OriginType = Origins.Center,
-                Color = Color.White,
-                Width = 185,
-                Height = 182,
-                Texture = Sprite.CreateTextureFromFile(this.GraphicsDevice, @"Content\Transfomation.png")
-            };
 
             oilres = new ResourceLabel()
             {
@@ -179,15 +80,8 @@ namespace WarshipGirl.Scene
             //    LoopMode = LoopMode.Forever,
             //    EasingFunction = new Power()
             //};
-            this.CompList.Add(hude);
-            this.CompList.Add(collection);
-            this.CompList.Add(settings);
-            this.CompList.Add(poss);
-            this.CompList.Add(dock);
-            this.CompList.Add(fact);
-            this.CompList.Add(trans);
-            this.CompList.Add(expbar);
-            this.CompList.Add(level);
+
+            LoadXml(@"Xml\UI_Harbor.xml");
             this.CompList.Add(oilres);
             this.CompList.Add(bulres);
             this.CompList.Add(irores);
@@ -195,6 +89,8 @@ namespace WarshipGirl.Scene
 
             this.Load += Harbor_Load;
             this.Unload += Harbor_Unload;
+
+            
             base.LoadContent();
         }
 
@@ -209,13 +105,13 @@ namespace WarshipGirl.Scene
             player.Stop();
         }
 
-        void fact_Click(object sender, EventArgs e)
+        public void fact_Click(object sender, EventArgs e)
         {
             var game = (Game1)ParentGame;
             game.Navigate(game.factory);
         }
     }
-    partial class Harbor: BaseScene
+    partial class Harbor : XmlScene
     {
         public override void Draw(GameTime gameTime)
         {

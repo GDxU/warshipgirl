@@ -41,6 +41,15 @@
   <PropertyGroup>
     <ApplicationIcon>Icon.ico</ApplicationIcon>
   </PropertyGroup>
+  <PropertyGroup>
+    <TargetZone>LocalIntranet</TargetZone>
+  </PropertyGroup>
+  <PropertyGroup>
+    <GenerateManifests>false</GenerateManifests>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationManifest>Properties\app.manifest</ApplicationManifest>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Include="Controls\Button.cs" />
     <Compile Include="Controls\FpsCounter.cs" />
@@ -66,6 +75,7 @@
     <Compile Include="Scene\Factory.cs" />
     <Compile Include="Scene\GetShip.cs" />
     <Compile Include="Scene\Harbor.cs" />
+    <Compile Include="Scene\XmlScene.cs" />
     <Compile Include="Server\OriginalData\ships.cs" />
     <Compile Include="Server\ServerCommand.cs" />
   </ItemGroup>
@@ -90,12 +100,16 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Icon.ico" />
+    <Content Include="Xml\UI_Harbor.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <MonoGameContentReference Include="Content\Content.mgcb" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="Properties\app.manifest" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\jxGameFramework\jxGameFramework.csproj">
