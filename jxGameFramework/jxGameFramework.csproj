@@ -87,6 +87,7 @@
     <Compile Include="Game.cs" />
     <Compile Include="Graphics.cs" />
     <Compile Include="Media\FFmpeg.cs" />
+    <Compile Include="Media\LibVLC.cs" />
     <Compile Include="Media\VideoDecoder.cs" />
     <Compile Include="Media\VideoPlayer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
