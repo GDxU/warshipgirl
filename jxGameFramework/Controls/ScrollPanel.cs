@@ -14,6 +14,9 @@ using Microsoft.Xna.Framework.Input;
 namespace jxGameFramework.Controls
 {
     //TODO: buggy
+    //TODO: drag / horizontal scrollpanel
+    //TODO: scroll bar event
+    //TODO: overlap & overflow buggy
     public class ScrollPanel : Control
     {
         int _maxheight=0;
@@ -30,7 +33,7 @@ namespace jxGameFramework.Controls
         }
         public override void Draw(GameTime gameTime)
         {
-            foreach(Sprite s in ChildSprites)
+            foreach(Control s in Controls)
             {
                 int t = s.Top;
                 s.Top = t - (int)(_pos * (_maxheight - Height));
@@ -41,15 +44,15 @@ namespace jxGameFramework.Controls
             if (_maxheight > this.Height)
             {
                 float value = DrawingY + _pos * (this.Height - 32);
-                Graphics.Instance.SpriteBatch.FillRectangle(new Rectangle(DrawingX + Width - 5, DrawingY, 5, Height), new Color(128, 128, 128, 200));
-                Graphics.Instance.SpriteBatch.Draw(_scroll, new Vector2(DrawingX + this.Width - 5, value), Color.White);
+                SpriteBatch.FillRectangle(new Rectangle(DrawingX + Width - 5, DrawingY, 5, Height), new Color(128, 128, 128, 200));
+                SpriteBatch.Draw(_scroll, new Vector2(DrawingX + this.Width - 5, value), Color.White);
             }
 #if DEBUG
             //Graphics.Instance.SpriteBatch.DrawRectangle(new Rectangle(this.DrawingX, this.DrawingY, this.Width, this.Height), Color.Black);
             //Graphics.Instance.SpriteBatch.DrawRectangle(DrawingRect, Color.Red);
 #endif
         }
-        public override void UpdateEvent(GameTime gameTime)
+        protected override void UpdateEvent(GameTime gameTime)
         {
             base.UpdateEvent(gameTime);
             if (_maxheight > this.Height)
@@ -75,7 +78,7 @@ namespace jxGameFramework.Controls
         }
         public override void Update(GameTime gameTime)
         {
-            foreach (Sprite s in ChildSprites)
+            foreach (Control s in Controls)
             {
                 if (_maxheight < s.Top + s.Height)
                     _maxheight = s.Top + s.Height + 5;

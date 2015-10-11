@@ -37,17 +37,11 @@ namespace jxGameFramework.Components
     /// </summary>
     public class Sprite : DrawableComponent
     {
-        public Sprite()
-        {
-            ChildSprites = new SpriteCollection(this);
-        }
         public Sprite Parent { get; set; }
         public int Left { get; set; }
         public int Right { get; set; }
         public int Top { get; set; }
         public int Bottom { get; set; }
-        public override bool Visible { get; set; } = true;
-        public override bool Enabled { get; set; } = true;
         public float Rotation { get; set; }
         public Vector2 Origin { get; set; }
         public SpriteEffects SpriteEffect { get; set; }
@@ -57,13 +51,6 @@ namespace jxGameFramework.Components
         public int Height { get; set; }
         public Color Color { get; set; } = Color.White;
         public List<Animation> AnimList = new List<Animation>();
-        public SpriteCollection ChildSprites { get; set; }
-        public override int DrawOrder { get; set; }
-        public override int UpdateOrder { get; set; }
-        public override event EventHandler<EventArgs> DrawOrderChanged;
-        public override event EventHandler<EventArgs> VisibleChanged;
-        public override event EventHandler<EventArgs> EnabledChanged;
-        public override event EventHandler<EventArgs> UpdateOrderChanged;
 
         Texture2D _texture;
         Color[] _texturepixel;
@@ -77,7 +64,7 @@ namespace jxGameFramework.Components
             {
                 _texture = value;
                 _texturepixel = new Color[value.Width * value.Height];
-                value.GetData<Color>(_texturepixel);
+                value.GetData(_texturepixel);
             }
         }
         private int ParentWidth
@@ -87,7 +74,7 @@ namespace jxGameFramework.Components
                 if (Parent != null)
                     return Parent.Width;
                 else
-                    return Graphics.Instance.GraphicsDevice.Viewport.Width;
+                    return GraphicsDevice.Viewport.Width;
             }
         }
         private int ParentHeight
@@ -97,7 +84,7 @@ namespace jxGameFramework.Components
                 if (Parent != null)
                     return Parent.Height;
                 else
-                    return Graphics.Instance.GraphicsDevice.Viewport.Height;
+                    return GraphicsDevice.Viewport.Height;
             }
         }
         private int ParentDrawingX
@@ -244,22 +231,6 @@ namespace jxGameFramework.Components
                 return new Rectangle(x, y, width, height);
             }
         }
-        public static Sprite Empty
-        {
-            get
-            {
-                var s = new Sprite()
-                {
-                    Top = 0,
-                    Left = 0,
-                    Width = 1,
-                    Height = 1,
-                    Color = Color.White,
-                    Margin = Origins.TopLeft,
-                };
-                return s;
-            }
-        }
 
         /// <summary>
         /// 从文件创建Texture
@@ -269,14 +240,18 @@ namespace jxGameFramework.Components
         public static Texture2D CreateTextureFromFile(string Path)
         {
             var fs = new FileStream(Path, FileMode.Open, FileAccess.Read);
-            var t = Texture2D.FromStream(Graphics.Instance.GraphicsDevice, fs);
+            return CreateTextureFromStream(fs);
+        }
+        public static Texture2D CreateTextureFromStream(Stream stream)
+        {
+            var t = Texture2D.FromStream(Graphics.Instance.GraphicsDevice, stream);
             PreMultiplyAlphas(t);
             return t;
         }
         private static void PreMultiplyAlphas(Texture2D ret)
         {
             Byte4[] data = new Byte4[ret.Width * ret.Height];
-            ret.GetData<Byte4>(data);
+            ret.GetData(data);
             for (int i = 0; i < data.Length; i++)
             {
                 Vector4 vec = data[i].ToVector4();
@@ -294,7 +269,7 @@ namespace jxGameFramework.Components
 
                 data[i].PackedValue = packed;
             }
-            ret.SetData<Byte4>(data);
+            ret.SetData(data);
         }
         public Color GetPixel(int x, int y)
         {
@@ -314,9 +289,8 @@ namespace jxGameFramework.Components
             {
                 if (Texture != null)
                 {
-                    Graphics.Instance.SpriteBatch.DrawArea(Texture, new Vector2(DestX,DestY), SourceRect, new Vector2(Width, Height), Color, Rotation, Origin, SpriteEffect, LayerDepth);
+                    SpriteBatch.DrawArea(Texture, new Vector2(DestX,DestY), SourceRect, new Vector2(Width, Height), Color, Rotation, Origin, SpriteEffect, LayerDepth);
                 }
-                ChildSprites.Draw(gameTime);
 #if DEBUG
                 //
                 //Graphics.Instance.SpriteBatch.DrawRectangle(DestRect, Color.Black);
@@ -326,21 +300,8 @@ namespace jxGameFramework.Components
 #endif
             }
         }
-        public override void Initialize()
-        {
-            //dbg = new Font("msyh.ttc", 12);
-            ChildSprites.Initialize();
-        }
-        public override void Dispose()
-        {
-            ChildSprites.Dispose();
-        }
         public override void Update(GameTime gameTime)
         {
-            if (Visible)
-            {
-                ChildSprites.Update(gameTime);
-            }
             int i = 0;
             while (i < AnimList.Count)
             {

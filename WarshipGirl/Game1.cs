@@ -62,16 +62,15 @@ namespace WarshipGirl
             };
             harbor = new Harbor()
             {
-                Texture = Texture2D.FromStream(Graphics.Instance.GraphicsDevice, harborbg),
+                Texture = Texture2D.FromStream(GraphicsDevice, harborbg),
             };
 
             factory = new Factory()
             {
                 Texture = Sprite.CreateTextureFromFile(@"Content\factbg.png"),
             };
-
+            this.KeyDown += Game1_KeyDown;
             select = new MapSelect();
-            FpsCounter.KeyDown += counter_KeyDown;
             Scenes.Add("Harbor", harbor);
             Scenes.Add("Factory", factory);
             Scenes.Add("Select", select);
@@ -80,7 +79,8 @@ namespace WarshipGirl
             Scenes.Navigate("Harbor");
             
         }
-        void counter_KeyDown(object sender, KeyEventArgs e)
+
+        private void Game1_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.State.IsKeyDown(Keys.F1))
             {
@@ -98,10 +98,11 @@ namespace WarshipGirl
                 else
                     ShowMessage("Fps counter are now hidden.", new TimeSpan(0, 0, 1));
             }
-
         }
+
         public override void Update(GameTime gameTime)
         {
+            
             if (_msgwatch.ElapsedMilliseconds > _msgTime.TotalMilliseconds)
             {
                 _globalmsg = "";
@@ -114,9 +115,9 @@ namespace WarshipGirl
         {
             if (_globalmsg != "")
             {
-                Graphics.Instance.SpriteBatch.FillRectangle(new Rectangle(0, Graphics.Instance.GraphicsDevice.Viewport.Height / 2 - 20, Graphics.Instance.GraphicsDevice.Viewport.Width, 40), new Color(0, 0, 0, 128));
+                SpriteBatch.FillRectangle(new Rectangle(0, GraphicsDevice.Viewport.Height / 2 - 20, GraphicsDevice.Viewport.Width, 40), new Color(0, 0, 0, 128));
                 Vector2 size = _msgfont.MeasureString(_globalmsg);
-                _msgfont.DrawText(new Vector2((Graphics.Instance.GraphicsDevice.Viewport.Width - size.X) / 2, (Graphics.Instance.GraphicsDevice.Viewport.Height - size.Y) / 2), _globalmsg, Color.White);
+                _msgfont.DrawText(new Vector2((GraphicsDevice.Viewport.Width - size.X) / 2, (GraphicsDevice.Viewport.Height - size.Y) / 2), _globalmsg, Color.White);
             }
         }
     }
