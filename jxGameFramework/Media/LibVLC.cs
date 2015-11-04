@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace jxGameFramework.Media
 {
-    class LibVLC
+    public class LibVLC : IDisposable
     {
         private enum Property
         {
@@ -33,7 +33,10 @@ namespace jxGameFramework.Media
         private static extern IntPtr GetInfo(IntPtr Instance, Property p);
 
         [DllImport("LibVLCWrapper")]
-        private static extern void Seek(IntPtr Instance, long time);
+        private static extern void SetPosition(IntPtr Instance, long time);
+
+        [DllImport("LibVLCWrapper")]
+        private static extern long GetPosition(IntPtr Instance);
 
         [DllImport("LibVLCWrapper")]
         private static extern void NextFrame(IntPtr Instance);
@@ -44,8 +47,6 @@ namespace jxGameFramework.Media
         private static bool Initialized = false;
 
         // The non-static part.
-
-        IntPtr VlcWrapperData;
 
         public LibVLC(Uri URi)
         {
@@ -62,10 +63,65 @@ namespace jxGameFramework.Media
             VideoFPS = (Single)Marshal.PtrToStructure(GetInfo(VlcWrapperData, Property.VideoFPS), typeof(Single));
             MediaLength = (Int64)Marshal.PtrToStructure(GetInfo(VlcWrapperData, Property.MediaLength), typeof(Int64));
         }
+        
 
         public UInt32 VideoWidth { get; private set; }
         public UInt32 VideoHeight { get; private set; }
         public Single VideoFPS { get; private set; }
         public Int64 MediaLength { get; private set; }
+
+        protected IntPtr Frame { get { return GetFrame(VlcWrapperData); } }
+        protected IntPtr VlcWrapperData;
+
+        public long Position
+        {
+            get { return GetPosition(VlcWrapperData); }
+            set { SetPosition(VlcWrapperData, value); }
+        }
+
+        public byte[] GetFrame()
+        {
+            byte[] Result = new byte[VideoWidth * VideoHeight * 4];
+
+            // Todo: Replace this ugly code with Marshal.Copy().
+            IntPtr tFrame = Frame;
+            for (int i = 0; i < VideoWidth * VideoHeight * 4; ++i)
+            {
+                Result[i] = Marshal.ReadByte(tFrame, i);
+            }
+            return Result;
+        }
+
+        public void NextFrame()
+        {
+            NextFrame(VlcWrapperData);
+        }
+
+        private bool disposedValue = false;
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    // Does nothing currently.
+                }
+
+                Close(VlcWrapperData);
+
+                disposedValue = true;
+            }
+        }
+        
+        ~LibVLC()
+        {
+            Dispose(false);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
     }
 }

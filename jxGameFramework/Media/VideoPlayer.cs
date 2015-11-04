@@ -11,8 +11,8 @@ using System.Diagnostics;
 
 namespace jxGameFramework.Media
 {
-    //TODO: buggy
-    //TODO: remake with libVLC
+    //TODO: buggy (not tested yet)
+    //TODO: test with libVLC
     public class VideoPlayerBase : Control
     {
         public readonly int BufferSize = 60;
@@ -26,41 +26,38 @@ namespace jxGameFramework.Media
             }
             set
             {
-                //TODO: algorithm
-                throw new NotImplementedException();
+                Decoder.Position = (long) value * 1000;
             }
         }
         public virtual double Length
         {
             get
             {
-                return Decoder.Length;
+                return Decoder.MediaLength;
             }
         }
         public string FileName { get; set; }
         private bool _autosize = true;
-        public VideoDecoder Decoder { get; protected set; }
+        public LibVLC Decoder { get; protected set; }
         public VideoPlayerBase (string file,bool asize=true)
         {
             FileName = file;
             _autosize = asize;
-            Decoder = new VideoDecoder(BufferSize);
-            Decoder.Open(FileName);
+            Decoder = new LibVLC(new Uri(FileName));
             if (_autosize)
             {
-                Width = Decoder.width;
-                Height = Decoder.height;
+                Width = (int) Decoder.VideoWidth;
+                Height = (int) Decoder.VideoHeight;
             }
         }
         public override void Initialize()
         {
-
             Surface = new Control()
             {
                 Width = this.Width,
                 Height = this.Height,
             };
-            Surface.Texture = new Texture2D(GraphicsDevice, Decoder.width, Decoder.height, false, SurfaceFormat.Bgr32);
+            Surface.Texture = new Texture2D(GraphicsDevice, (int)Decoder.VideoWidth, (int)Decoder.VideoHeight, false, SurfaceFormat.Rg32);
             Controls.Add(Surface);
             base.Initialize();
         }
@@ -71,7 +68,8 @@ namespace jxGameFramework.Media
         }
         protected virtual void SetProgress()
         {
-            var data = Decoder.GetFrame((int)timer.ElapsedMilliseconds);
+            Decoder.Position = timer.ElapsedMilliseconds;
+            var data = Decoder.GetFrame();
             if (data != null)
                 Surface.Texture.SetData(data);
         }
@@ -133,16 +131,17 @@ namespace jxGameFramework.Media
             get
             {
                 if (AudioStream != null)
-                    return Math.Min(AudioStream.Length, Decoder.Length);
+                    return Math.Min(AudioStream.Length, Decoder.MediaLength);
                 else
-                    return Decoder.Length;
+                    return Decoder.MediaLength;
             }
         }
         protected override void SetProgress()
         {
             if (AudioStream != null)
             {
-                var data = Decoder.GetFrame((int)(AudioStream.Position * 1000));
+                Decoder.Position = (long)(AudioStream.Position * 1000);
+                var data = Decoder.GetFrame();
                 if (data != null)
                     Surface.Texture.SetData(data);
             }
